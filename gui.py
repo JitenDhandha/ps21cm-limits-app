@@ -3,7 +3,7 @@ import tomllib
 from pathlib import Path
 import streamlit as st
 import pandas as pd
-import plot_eor_limits
+import plot
 import eor_limits
 
 # Load from .streamlit/config.toml
@@ -206,7 +206,7 @@ def main():
     # Plot area
     with cont_plot:
         st.markdown('<div class="app-section-title">Plot area</div>', unsafe_allow_html=True)
-        fig = plot_eor_limits.plot(
+        fig = plot.plot(
             [row['dataset_lowest' if lowest_only else 'dataset_raw'] for idx, row in df_datasets.iterrows() if row['checkbox']],
             plot_type=plot_type,
             x_axis=x_axis,

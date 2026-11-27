@@ -9,7 +9,7 @@ def _gradient_colors(base_color, n):
     factors = np.linspace(1.5, 0.5, n) # lighter to darker
     return [f'rgb({int(255*min(1, rgb[0]*f))}, {int(255*min(1, rgb[1]*f))}, {int(255*min(1, rgb[2]*f))})' for f in factors]
 
-# Main plotting function for EoR limits using Plotly
+# Main plotting function for 21-cm power spectrum limits using Plotly
 
 def plot(datasets, 
         plot_type = 'line', 
