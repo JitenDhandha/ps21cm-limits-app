@@ -1,7 +1,6 @@
-attrs
+eor-limits @ git+https://github.com/EoRImaging/eor_limits@16013e0962d289671ae09a4d2900c45732c1620c
 matplotlib
 numpy
 pandas
 plotly
-PyYAML
 streamlit>=1.53.1

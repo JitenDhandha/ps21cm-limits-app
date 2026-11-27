@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib as mpl
 import plotly.express as px
 import plotly.graph_objects as go
-import eor_limits
 
 def _gradient_colors(base_color, n):
     rgb = np.array(mpl.colors.to_rgb(base_color))
@@ -64,12 +63,12 @@ def plot(datasets,
             elif y_axis == 'power':
                 y = y_arr[iz] * ((2*np.pi**2)/(data.k[iz]**3))
             z_vals = float(data.z[iz]) * np.ones_like(y)
-            z_lower_vals = data.z_lower[iz] * np.ones_like(y) if data.z_lower.size > 0 else None
-            z_upper_vals = data.z_upper[iz] * np.ones_like(y) if data.z_upper.size > 0 else None
+            z_lower_vals = data.z_lower[iz] * np.ones_like(y) if data.z_lower is not None else None
+            z_upper_vals = data.z_upper[iz] * np.ones_like(y) if data.z_upper is not None else None
             k_vals = data.k[iz]
-            k_upper_vals = data.k_lower[iz] if data.k_lower.size > 0 else None
-            k_lower_vals = data.k_upper[iz] if data.k_upper.size > 0 else None
-            z_tag_val = f'({data.z_tags[iz]})' if data.z_tags.size > 0 else ""
+            k_upper_vals = data.k_lower[iz] if data.k_lower is not None else None
+            k_lower_vals = data.k_upper[iz] if data.k_upper is not None else None
+            z_tag_val = f'({data.z_tags[iz]})' if data.z_tags is not None else ""
             
             # Apply z range filter
             if z_range is not None and (z_vals[0] < z_range[0] or z_vals[0] > z_range[1]):

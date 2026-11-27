@@ -1,4 +1,6 @@
+import tempfile
 import tomllib
+from pathlib import Path
 import streamlit as st
 import pandas as pd
 import plot_eor_limits
@@ -53,11 +55,10 @@ def _apply_css():
 
 @st.cache_data
 def load_datasets():
-    fnames = eor_limits.get_available_datasets()
     list_datasets = []
-    for fname in fnames:
-        draw = eor_limits.load_dataset(fname)
-        dlowest = eor_limits.load_dataset_lowest_limits(fname)
+    for name in eor_limits.KNOWN_LIMITS:
+        draw = eor_limits.load_limit_data(name)
+        dlowest = draw.select_lowest_delta_squared(per_z=True, per_tag=False)
         list_datasets.append({
             'fname': f"{draw.author}{draw.year}" if 'HERA' not in draw.author else f'HERA{draw.year}',
             'telescope': draw.telescope,
@@ -69,6 +70,13 @@ def load_datasets():
         })
     df_datasets = pd.DataFrame(list_datasets)
     return df_datasets
+
+def load_uploaded_dataset(uploaded_file):
+    # eor_limits loads datasets from files, so write the upload to a temporary one
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        path = Path(tmp_dir) / Path(uploaded_file.name).name
+        path.write_bytes(uploaded_file.getvalue())
+        return eor_limits.load_limit_data(path)
 
 def main():
 
@@ -112,10 +120,9 @@ def main():
                                              """,
                                              accept_multiple_files=True)
         for uploaded_dataset in uploaded_datasets:
-            upload_data = uploaded_dataset.getvalue().decode('utf-8')
             try:
-                user_dataset = eor_limits.load_dataset(upload_data, if_yaml_str=True)
-                user_dataset_lowest = eor_limits.load_dataset_lowest_limits(upload_data, if_yaml_str=True)
+                user_dataset = load_uploaded_dataset(uploaded_dataset)
+                user_dataset_lowest = user_dataset.select_lowest_delta_squared(per_z=True, per_tag=False)
                 st.success(f"Successfully loaded dataset: {user_dataset.author}{user_dataset.year}")
                 df_datasets = pd.concat([
                     df_datasets,
@@ -218,7 +225,7 @@ def main():
         for idx, row in df_datasets.iterrows():
             if row['checkbox']:
                 st.markdown(f'<div class="app-telescope-heading">{row["fname"]}</div>', unsafe_allow_html=True)
-                st.dataframe(row['dataset_lowest' if lowest_only else 'dataset_raw'].data)
+                st.dataframe(row['dataset_lowest' if lowest_only else 'dataset_raw'].data.as_pandas_df())
             
         
 if __name__ == "__main__":
